@@ -1,0 +1,84 @@
+# https://www.redhat.com/en/blog/multi-container-application-podman-quadlet
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: forgejo-pv-claim
+  labels:
+    app: forgejo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: forgejo
+spec:
+  containers:
+    
+
+    - name: forgejo
+      image: codeberg.org/forgejo/forgejo:9
+      resources:
+        requests:
+          cpu: "200m"  # adjust to your needs
+          memory: "256Mi"  # adjust to your needs
+        limits:
+          cpu: "200m"  # adjust to your needs
+          memory: "256Mi"  # adjust to your needs
+      env:
+        - name: USER_UID
+          value: "1000"
+        - name: USER_GID
+          value: "1000"
+        - name: FORGEJO__database__DB_TYPE
+          value: mysql
+        - name: FORGEJO__database__HOST
+          value: forgejo-database:3306
+        - name: FORGEJO__database__NAME
+          value: forgejo
+        - name: FORGEJO__database__USER
+          value: forgejo
+        - name: FORGEJO__database__PASSWD
+          valueFrom:
+            secretKeyRef:
+              name: forgejo-database-password-kube
+              key: password
+      volumeMounts:
+        - name: forgejo-persistent-storage
+          mountPath: /data
+
+    - name: envoy
+      image: docker.io/envoyproxy/envoy:v1.31-latest
+      resources:
+        requests:
+          cpu: "200m"  # adjust to your needs
+          memory: "256Mi"  # adjust to your needs
+        limits:
+          cpu: "200m"  # adjust to your needs
+          memory: "256Mi"  # adjust to your needs
+      volumeMounts:
+        - name: config-volume
+          mountPath: /etc/envoy
+        - name: certificates
+          mountPath: /etc/envoy-certificates
+      env:
+        - name: ENVOY_UID
+          value: "0"
+
+  volumes:
+    - name: config-volume
+      configMap:
+        name: envoy-proxy-config
+    - name: certificates
+      secret:
+        secretName: envoy-certificates
+    - name: forgejo-persistent-storage
+      persistentVolumeClaim:
+        claimName: forgejo-pv-claim
+

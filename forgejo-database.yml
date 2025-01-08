@@ -1,0 +1,74 @@
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: forgejo-database-pv-claim
+  labels:
+    app: forgejo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: forgejo-database
+spec:
+  containers:
+    # - name: forgejo-database
+    #   image: "postgres:14"
+    #   imagePullPolicy: IfNotPresent
+    #   ports:
+    #     - containerPort: 5432
+    #   envFrom:
+    #     - configMapRef:
+    #         name: postgres-secret
+    #   volumeMounts:
+    #     - mountPath: /var/lib/postgresql/data
+    #       name: forgejo-database-persistent-storage
+    #   resources:
+    #     requests:
+    #       cpu: "100m"  # adjust to your needs
+    #       memory: "128Mi"  # adjust to your needs
+    #     limits:
+    #       cpu: "200m"  # adjust to your needs
+    #       memory: "256Mi"  # adjust to your needs
+
+    - name: forgejo-database
+      image: "docker.io/library/mysql:9"
+      resources:
+        requests:
+          cpu: "200m"  # adjust to your needs
+          memory: "256Mi"  # adjust to your needs
+        limits:
+          cpu: "200m"  # adjust to your needs
+          memory: "256Mi"  # adjust to your needs
+      env:
+      - name: MYSQL_ROOT_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: forgejo-root-database-password-kube
+            key: password
+      - name: MYSQL_USER
+        value: forgejo
+      - name: MYSQL_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: forgejo-database-password-kube
+            key: password
+      - name: MYSQL_DATABASE
+        value: forgejo
+      ports:
+      - containerPort: 3306
+        name: mysql
+      volumeMounts:
+      - name: forgejo-database-persistent-storage
+        mountPath: /var/lib/mysql
+  volumes:
+    - name: forgejo-database-persistent-storage
+      persistentVolumeClaim:
+        claimName: forgejo-database-pv-claim
