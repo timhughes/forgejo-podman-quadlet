@@ -74,6 +74,9 @@ journalctl --user -xeu forgejo-database.service
 journalctl --user -xeu forgejo.service
 ```
 
+Access the installation over TLS at <https://localhost:8080>
+
+
 ## More Reading
 
 - <https://www.redhat.com/en/blog/quadlet-podman>

@@ -19,17 +19,15 @@ metadata:
   name: forgejo
 spec:
   containers:
-    
-
     - name: forgejo
       image: codeberg.org/forgejo/forgejo:9
       resources:
         requests:
-          cpu: "200m"  # adjust to your needs
-          memory: "256Mi"  # adjust to your needs
+          cpu: "200m" # adjust to your needs
+          memory: "256Mi" # adjust to your needs
         limits:
-          cpu: "200m"  # adjust to your needs
-          memory: "256Mi"  # adjust to your needs
+          cpu: "200m" # adjust to your needs
+          memory: "256Mi" # adjust to your needs
       env:
         - name: USER_UID
           value: "1000"
@@ -56,11 +54,11 @@ spec:
       image: docker.io/envoyproxy/envoy:v1.31-latest
       resources:
         requests:
-          cpu: "200m"  # adjust to your needs
-          memory: "256Mi"  # adjust to your needs
+          cpu: "200m" # adjust to your needs
+          memory: "256Mi" # adjust to your needs
         limits:
-          cpu: "200m"  # adjust to your needs
-          memory: "256Mi"  # adjust to your needs
+          cpu: "200m" # adjust to your needs
+          memory: "256Mi" # adjust to your needs
       volumeMounts:
         - name: config-volume
           mountPath: /etc/envoy
@@ -80,4 +78,3 @@ spec:
     - name: forgejo-persistent-storage
       persistentVolumeClaim:
         claimName: forgejo-pv-claim
-
