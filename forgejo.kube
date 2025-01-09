@@ -2,8 +2,8 @@
 WantedBy=default.target
 
 [Unit]
-Requires=forgejo-database.kube
-After=forgejo-database.kube
+Requires=forgejo-database.service
+After=forgejo-database.service
 
 [Kube]
 # Point to the yaml file in the same directory
@@ -11,8 +11,10 @@ Yaml=forgejo.yml
 # Use the forgejo network
 Network=forgejo.network
 # Publish the envoy proxy data port
-PublishPort=8080:3000
+PublishPort=8080:8080
 # Publish the envoy proxy admin port
 PublishPort=9000:9901
+# Publish the forgejo ssh port
+PublishPort=2022:22
 # Use the envoy proxy config map in the same directory
 ConfigMap=envoy-proxy-configmap.yml

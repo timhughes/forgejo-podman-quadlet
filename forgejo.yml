@@ -1,4 +1,3 @@
-# https://www.redhat.com/en/blog/multi-container-application-podman-quadlet
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

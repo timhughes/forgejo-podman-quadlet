@@ -1,34 +1,27 @@
 
-# README
-
-This is a basic README file for your project.
+# Forgejo on Podman with Quadlet
 
 ## Table of Contents
 
-* [Description](#description)
-* [Features](#features)
-* [Installation](#installation)
-* [Usage](#usage)
-* [Contributing](#contributing)
-* [License](#license)
+- [Description](#description)
+- [Installation](#installation)
+- [More Reading](#more-reading)
 
 ## Description
 
 A brief description of your project goes here.
 
-## Features
-
-List the main features of your project here.
-
 ## Installation
 
 Create self signed cert
+
 ```bash
 openssl req -x509 -sha256 -nodes -days 365 \
     -newkey rsa:4096 -keyout certificate.key -out certificate.pem
 ```
 
 Load them into podman
+
 ```bash
 kubectl create secret generic \
     --from-file=certificate.key \
@@ -38,6 +31,8 @@ kubectl create secret generic \
     -o yaml | \
     podman kube play -
 ```
+
+Create the database root and user passwords
 
 ```bash
 DATABASE_ROOT_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 16)
@@ -60,7 +55,10 @@ kubectl create secret generic \
     podman kube play -
 ```
 
+Copy the files into position
+
 ```bash
+mkdir -p $HOME/.config/containers/systemd/
 cp envoy-proxy-configmap.yml forgejo* $HOME/.config/containers/systemd/
 ```
 
@@ -68,34 +66,15 @@ cp envoy-proxy-configmap.yml forgejo* $HOME/.config/containers/systemd/
 systemctl --user daemon-reload
 systemctl --user start forgejo-database.service
 systemctl --user start forgejo.service
-```bash
-journalctl --user -xeu forgejo-database.service
 ```
 
 ```bash
+journalctl --user -xeu forgejo-database.service
+
 journalctl --user -xeu forgejo.service
 ```
 
-### Requirements
+## More Reading
 
-List any dependencies required to run your project.
-
-## Usage
-
-Information on how to use your project goes here.
-
-### Example Use Cases
-
-Provide examples of how to use your project in different scenarios.
-
-## Contributing
-
-Guidelines for contributing to your project go here.
-
-### Pull Request Guidelines
-
-Explain the process for submitting a pull request.
-
-## License
-
-The license under which your project is released.
+- <https://www.redhat.com/en/blog/quadlet-podman>
+- <https://www.redhat.com/en/blog/multi-container-application-podman-quadlet>
